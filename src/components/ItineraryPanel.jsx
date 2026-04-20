@@ -1,8 +1,87 @@
-import { useEffect, useRef } from 'react'
-import { FaMapMarkerAlt } from 'react-icons/fa'
+import { useEffect, useRef, useState } from 'react'
+import { FaMapMarkerAlt, FaCamera, FaTrash } from 'react-icons/fa'
+import { MdAddPhotoAlternate } from 'react-icons/md'
 import { TYPE_ICONS, DAY_ICONS } from '../data/icons'
 
-function TimelineItem({ loc, index, isActive, onSelect }) {
+const IS_DEV = import.meta.env.DEV
+const BASE = import.meta.env.BASE_URL
+
+function ImageArea({ locationId, imageUrl, onSaved, onDeleted }) {
+  const inputRef = useRef(null)
+  const [uploading, setUploading] = useState(false)
+  const [preview, setPreview] = useState(null)
+
+  // Use server url if no local preview yet
+  const displayUrl = preview || (imageUrl ? `${BASE.replace(/\/$/, '')}${imageUrl}` : null)
+
+  async function handleFile(file) {
+    if (!file) return
+    setPreview(URL.createObjectURL(file))
+    setUploading(true)
+
+    try {
+      const form = new FormData()
+      form.append('image', file)
+      form.append('locationId', locationId)
+      const res = await fetch('/api/upload-image', { method: 'POST', body: form })
+      const data = await res.json()
+      if (data.url) onSaved(locationId, data.url)
+    } catch (e) {
+      console.error('Upload failed', e)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function handleDelete(e) {
+    e.stopPropagation()
+    setPreview(null)
+    await fetch(`/api/delete-image/${locationId}`, { method: 'DELETE' })
+    onDeleted(locationId)
+  }
+
+  if (!IS_DEV && !displayUrl) return null
+
+  return (
+    <div className="img-area">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={e => handleFile(e.target.files[0])}
+      />
+
+      {displayUrl ? (
+        <div className="img-preview" onClick={() => IS_DEV && inputRef.current.click()}>
+          <img src={displayUrl} alt="location" />
+          {uploading && <div className="img-uploading">上傳中…</div>}
+          {IS_DEV && (
+            <div className="img-overlay">
+              <FaCamera size={13} color="white" />
+              <button className="img-delete-btn" onClick={handleDelete} title="刪除圖片">
+                <FaTrash size={10} color="white" />
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <button
+          className="img-upload-btn"
+          onClick={() => inputRef.current.click()}
+          title="點擊上傳圖片"
+        >
+          {uploading
+            ? <span className="img-uploading-dot" />
+            : <MdAddPhotoAlternate size={22} color="#a0aec0" />}
+          <span>新增照片</span>
+        </button>
+      )}
+    </div>
+  )
+}
+
+function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, onImageDeleted }) {
   const ref = useRef(null)
   const IconComponent = TYPE_ICONS[loc.type]
 
@@ -28,28 +107,37 @@ function TimelineItem({ loc, index, isActive, onSelect }) {
       </div>
 
       <div className="tl-card">
-        <div className="tl-time">{loc.time}</div>
-        <div className="tl-name">{loc.name}</div>
-        {loc.note && <div className="tl-note">{loc.note}</div>}
-        {loc.mapLink && (
-          <div className="tl-actions">
-            <a
-              href={loc.mapLink}
-              target="_blank"
-              rel="noreferrer"
-              className="map-btn"
-              onClick={e => e.stopPropagation()}
-            >
-              <FaMapMarkerAlt size={11} /> Google 地圖
-            </a>
-          </div>
-        )}
+        <div className="tl-card-body">
+          <div className="tl-time">{loc.time}</div>
+          <div className="tl-name">{loc.name}</div>
+          {loc.note && <div className="tl-note">{loc.note}</div>}
+          {loc.mapLink && (
+            <div className="tl-actions">
+              <a
+                href={loc.mapLink}
+                target="_blank"
+                rel="noreferrer"
+                className="map-btn"
+                onClick={e => e.stopPropagation()}
+              >
+                <FaMapMarkerAlt size={11} /> Google 地圖
+              </a>
+            </div>
+          )}
+        </div>
+
+        <ImageArea
+          locationId={loc.id}
+          imageUrl={imageUrl}
+          onSaved={onImageSaved}
+          onDeleted={onImageDeleted}
+        />
       </div>
     </div>
   )
 }
 
-export default function ItineraryPanel({ day, activeIndex, onLocationSelect, dayIndex }) {
+export default function ItineraryPanel({ day, dayIndex, activeIndex, onLocationSelect, imageMap, onImageSaved, onImageDeleted }) {
   const DayIcon = DAY_ICONS[dayIndex]
 
   return (
@@ -80,6 +168,9 @@ export default function ItineraryPanel({ day, activeIndex, onLocationSelect, day
               index={i}
               isActive={i === activeIndex}
               onSelect={onLocationSelect}
+              imageUrl={imageMap[loc.id] ?? null}
+              onImageSaved={onImageSaved}
+              onImageDeleted={onImageDeleted}
             />
           ))}
         </div>
