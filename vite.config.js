@@ -39,7 +39,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon.svg'],
+      includeAssets: ['images/sakura.png'],
       manifest: {
         name: '日本 6日5夜 旅遊行程',
         short_name: '日本旅遊',
@@ -49,7 +49,10 @@ export default defineConfig({
         display: 'standalone',
         lang: 'zh-TW',
         orientation: 'any',
-        icons: [{ src: 'icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        icons: [
+          { src: 'images/sakura.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'images/sakura.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
       workbox: {
         runtimeCaching: [
