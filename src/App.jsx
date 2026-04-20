@@ -40,6 +40,7 @@ export default function App() {
         />
         <ItineraryPanel
           day={day}
+          dayIndex={currentDay}
           activeIndex={activeIndex}
           onLocationSelect={handleLocationSelect}
         />
