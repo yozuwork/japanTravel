@@ -11,14 +11,15 @@ export default function App() {
   const [activeIndex, setActiveIndex] = useState(null)
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   const [imageMap, setImageMap] = useState({})
+  const [selA, setSelA] = useState(null) // { id, name, coords, index }
+  const [selB, setSelB] = useState(null)
 
   const day = ITINERARY[currentDay]
 
-  // Load image manifest on startup
   useEffect(() => {
     fetch(`${BASE}images/manifest.json?t=${Date.now()}`)
       .then(r => r.json())
-      .then(data => setImageMap(data))
+      .then(setImageMap)
       .catch(() => {})
   }, [])
 
@@ -31,16 +32,39 @@ export default function App() {
     setActiveIndex(prev => (prev === i ? null : i))
   }
 
+  function handleToggleSelection(loc, index) {
+    if (!loc.coords) return
+    const item = { id: loc.id, name: loc.name, coords: loc.coords, index }
+
+    if (selA?.id === loc.id) {
+      // Deselect A → promote B to A
+      setSelA(selB)
+      setSelB(null)
+    } else if (selB?.id === loc.id) {
+      // Deselect B
+      setSelB(null)
+    } else if (!selA) {
+      setSelA(item)
+    } else if (!selB) {
+      setSelB(item)
+    } else {
+      // Both full → restart with this item as A
+      setSelA(item)
+      setSelB(null)
+    }
+  }
+
+  function clearSelection() {
+    setSelA(null)
+    setSelB(null)
+  }
+
   function handleImageSaved(locationId, url) {
     setImageMap(prev => ({ ...prev, [locationId]: url }))
   }
 
   function handleImageDeleted(locationId) {
-    setImageMap(prev => {
-      const next = { ...prev }
-      delete next[locationId]
-      return next
-    })
+    setImageMap(prev => { const n = { ...prev }; delete n[locationId]; return n })
   }
 
   useEffect(() => {
@@ -60,6 +84,8 @@ export default function App() {
           day={day}
           activeIndex={activeIndex}
           onLocationSelect={handleLocationSelect}
+          selA={selA}
+          selB={selB}
         />
         <ItineraryPanel
           day={day}
@@ -69,6 +95,10 @@ export default function App() {
           imageMap={imageMap}
           onImageSaved={handleImageSaved}
           onImageDeleted={handleImageDeleted}
+          selA={selA}
+          selB={selB}
+          onToggleSelection={handleToggleSelection}
+          onClearSelection={clearSelection}
         />
       </main>
 

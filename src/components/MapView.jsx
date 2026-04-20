@@ -13,21 +13,26 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-function createPinIcon(type, index, isActive) {
+function createPinIcon(type, index, isActive, selState) {
   const color = TYPE_COLORS[type] || '#666'
   const IconComponent = TYPE_ICONS[type]
-  const size = isActive ? 42 : 34
-  const iconSize = isActive ? 17 : 14
+  const size = isActive || selState ? 42 : 34
+  const iconSize = size > 34 ? 17 : 14
 
   const svgHtml = IconComponent
     ? renderToStaticMarkup(<IconComponent size={iconSize} color="white" />)
     : ''
 
+  const selBadge = selState
+    ? `<span class="map-pin__sel map-pin__sel--${selState}">${selState.toUpperCase()}</span>`
+    : ''
+
   return L.divIcon({
     className: '',
-    html: `<div class="map-pin${isActive ? ' active-pin' : ''}" style="background:${color};width:${size}px;height:${size}px">
+    html: `<div class="map-pin${isActive ? ' active-pin' : ''}${selState ? ` pin-sel-${selState}` : ''}" style="background:${color};width:${size}px;height:${size}px">
       ${svgHtml}
       <span class="map-pin__badge">${index + 1}</span>
+      ${selBadge}
     </div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -79,7 +84,7 @@ function MapController({ day, activeIndex, onFitRef }) {
   return null
 }
 
-export default function MapView({ day, activeIndex, onLocationSelect }) {
+export default function MapView({ day, activeIndex, onLocationSelect, selA, selB }) {
   const fitRef = useRef(() => {})
   const routeSegments = buildRouteSegments(day.locations)
 
@@ -107,13 +112,22 @@ export default function MapView({ day, activeIndex, onLocationSelect }) {
           />
         ))}
 
+        {/* A→B selection route line */}
+        {selA?.coords && selB?.coords && (
+          <Polyline
+            positions={[selA.coords, selB.coords]}
+            pathOptions={{ color: '#3182ce', weight: 4, opacity: 0.85 }}
+          />
+        )}
+
         {day.locations.map((loc, i) => {
           if (!loc.coords) return null
+          const selState = selA?.id === loc.id ? 'a' : selB?.id === loc.id ? 'b' : null
           return (
             <Marker
               key={loc.id}
               position={loc.coords}
-              icon={createPinIcon(loc.type, i, i === activeIndex)}
+              icon={createPinIcon(loc.type, i, i === activeIndex, selState)}
               eventHandlers={{ click: () => onLocationSelect(i) }}
             >
               <Popup>

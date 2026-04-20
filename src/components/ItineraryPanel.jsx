@@ -1,24 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { FaMapMarkerAlt, FaCamera, FaTrash } from 'react-icons/fa'
-import { MdAddPhotoAlternate } from 'react-icons/md'
+import { MdAddPhotoAlternate, MdRadioButtonUnchecked } from 'react-icons/md'
 import { TYPE_ICONS, DAY_ICONS } from '../data/icons'
+import RouteInfoCard from './RouteInfoCard'
 
 const IS_DEV = import.meta.env.DEV
 const BASE = import.meta.env.BASE_URL
 
+/* ── Image upload area ───────────────────── */
 function ImageArea({ locationId, imageUrl, onSaved, onDeleted }) {
   const inputRef = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(null)
 
-  // Use server url if no local preview yet
   const displayUrl = preview || (imageUrl ? `${BASE.replace(/\/$/, '')}${imageUrl}` : null)
 
   async function handleFile(file) {
     if (!file) return
     setPreview(URL.createObjectURL(file))
     setUploading(true)
-
     try {
       const form = new FormData()
       form.append('image', file)
@@ -44,13 +44,9 @@ function ImageArea({ locationId, imageUrl, onSaved, onDeleted }) {
 
   return (
     <div className="img-area">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
+      <input ref={inputRef} type="file" accept="image/*"
         style={{ display: 'none' }}
-        onChange={e => handleFile(e.target.files[0])}
-      />
+        onChange={e => handleFile(e.target.files[0])} />
 
       {displayUrl ? (
         <div className="img-preview" onClick={() => IS_DEV && inputRef.current.click()}>
@@ -66,11 +62,7 @@ function ImageArea({ locationId, imageUrl, onSaved, onDeleted }) {
           )}
         </div>
       ) : (
-        <button
-          className="img-upload-btn"
-          onClick={() => inputRef.current.click()}
-          title="點擊上傳圖片"
-        >
+        <button className="img-upload-btn" onClick={() => inputRef.current.click()} title="點擊上傳圖片">
           {uploading
             ? <span className="img-uploading-dot" />
             : <MdAddPhotoAlternate size={22} color="#a0aec0" />}
@@ -81,27 +73,39 @@ function ImageArea({ locationId, imageUrl, onSaved, onDeleted }) {
   )
 }
 
-function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, onImageDeleted }) {
+/* ── Selection button ────────────────────── */
+function SelButton({ selState, hasCoords, onClick }) {
+  return (
+    <button
+      className={`tl-sel-btn${selState ? ` tl-sel-btn--${selState}` : ''}`}
+      onClick={e => { e.stopPropagation(); onClick() }}
+      title={selState === 'a' ? '已選為起點 A（點擊取消）' : selState === 'b' ? '已選為終點 B（點擊取消）' : '選為路線端點'}
+      disabled={!hasCoords}
+    >
+      {selState === 'a' ? 'A' : selState === 'b' ? 'B' : <MdRadioButtonUnchecked size={14} />}
+    </button>
+  )
+}
+
+/* ── Single timeline item ────────────────── */
+function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, onImageDeleted, selState, onToggleSel }) {
   const ref = useRef(null)
   const IconComponent = TYPE_ICONS[loc.type]
 
   useEffect(() => {
-    if (isActive && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    }
+    if (isActive && ref.current) ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [isActive])
 
   return (
-    <div
-      ref={ref}
-      className={`timeline-item${isActive ? ' active' : ''}`}
+    <div ref={ref}
+      className={`timeline-item${isActive ? ' active' : ''}${selState ? ` sel-${selState}` : ''}`}
       onClick={() => onSelect(index)}
     >
+      <SelButton selState={selState} hasCoords={!!loc.coords} onClick={() => onToggleSel(loc, index)} />
+
       <div className="tl-left">
         <div className={`tl-dot dot-${loc.type}`}>
-          {IconComponent
-            ? <IconComponent size={14} color="white" />
-            : <FaMapMarkerAlt size={14} color="white" />}
+          {IconComponent ? <IconComponent size={14} color="white" /> : <FaMapMarkerAlt size={14} color="white" />}
         </div>
         <div className="tl-line" />
       </div>
@@ -113,32 +117,33 @@ function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, 
           {loc.note && <div className="tl-note">{loc.note}</div>}
           {loc.mapLink && (
             <div className="tl-actions">
-              <a
-                href={loc.mapLink}
-                target="_blank"
-                rel="noreferrer"
-                className="map-btn"
-                onClick={e => e.stopPropagation()}
-              >
+              <a href={loc.mapLink} target="_blank" rel="noreferrer"
+                className="map-btn" onClick={e => e.stopPropagation()}>
                 <FaMapMarkerAlt size={11} /> Google 地圖
               </a>
             </div>
           )}
         </div>
 
-        <ImageArea
-          locationId={loc.id}
-          imageUrl={imageUrl}
-          onSaved={onImageSaved}
-          onDeleted={onImageDeleted}
-        />
+        <ImageArea locationId={loc.id} imageUrl={imageUrl} onSaved={onImageSaved} onDeleted={onImageDeleted} />
       </div>
     </div>
   )
 }
 
-export default function ItineraryPanel({ day, dayIndex, activeIndex, onLocationSelect, imageMap, onImageSaved, onImageDeleted }) {
+/* ── Panel ───────────────────────────────── */
+export default function ItineraryPanel({
+  day, dayIndex, activeIndex, onLocationSelect,
+  imageMap, onImageSaved, onImageDeleted,
+  selA, selB, onToggleSelection, onClearSelection,
+}) {
   const DayIcon = DAY_ICONS[dayIndex]
+
+  function getSelState(locId) {
+    if (selA?.id === locId) return 'a'
+    if (selB?.id === locId) return 'b'
+    return null
+  }
 
   return (
     <aside className="itinerary-panel">
@@ -152,11 +157,12 @@ export default function ItineraryPanel({ day, dayIndex, activeIndex, onLocationS
         </div>
       </div>
 
+      {/* Route info card – appears when any selection exists */}
+      <RouteInfoCard selA={selA} selB={selB} onClear={onClearSelection} />
+
       {day.placeholder ? (
         <div className="placeholder-msg">
-          <div className="ph-icon">
-            {DayIcon && <DayIcon size={48} color="#cbd5e0" />}
-          </div>
+          <div className="ph-icon">{DayIcon && <DayIcon size={48} color="#cbd5e0" />}</div>
           <p>{day.date} {day.title}<br />行程規劃中，敬請期待！</p>
         </div>
       ) : (
@@ -171,6 +177,8 @@ export default function ItineraryPanel({ day, dayIndex, activeIndex, onLocationS
               imageUrl={imageMap[loc.id] ?? null}
               onImageSaved={onImageSaved}
               onImageDeleted={onImageDeleted}
+              selState={getSelState(loc.id)}
+              onToggleSel={onToggleSelection}
             />
           ))}
         </div>

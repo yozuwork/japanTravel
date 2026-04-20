@@ -213,7 +213,8 @@ html, body, #root {
 
 .timeline-item {
   display: flex;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 8px;
   cursor: pointer;
 }
 .timeline-item:hover .tl-card { background: #f7f9ff; transform: translateX(2px); }
@@ -221,6 +222,136 @@ html, body, #root {
   background: #fff5f5;
   border-left: 3px solid var(--primary);
 }
+.timeline-item.sel-a .tl-card { border-left: 3px solid #48bb78; background: #f0fff4; }
+.timeline-item.sel-b .tl-card { border-left: 3px solid #ed8936; background: #fffaf0; }
+
+/* ── Selection button ────────────────────── */
+.tl-sel-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #a0aec0;
+  margin-top: 5px;
+  transition: all .2s;
+  padding: 0;
+}
+.tl-sel-btn:hover:not(:disabled) {
+  border-color: #4a5568;
+  color: #4a5568;
+  transform: scale(1.1);
+}
+.tl-sel-btn:disabled { opacity: .3; cursor: default; }
+.tl-sel-btn--a {
+  background: #48bb78;
+  border-color: #48bb78;
+  color: white;
+  box-shadow: 0 0 0 3px rgba(72,187,120,.25);
+}
+.tl-sel-btn--b {
+  background: #ed8936;
+  border-color: #ed8936;
+  color: white;
+  box-shadow: 0 0 0 3px rgba(237,137,54,.25);
+}
+
+/* ── Route info card ─────────────────────── */
+.route-card {
+  margin: 0 14px 4px;
+  padding: 10px 12px;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.route-card--full { background: #ebf8ff; }
+.route-card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.sel-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.sel-badge.sel-a { background: #48bb78; color: white; }
+.sel-badge.sel-b { background: #ed8936; color: white; }
+.route-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.route-arrow { color: #718096; font-size: 14px; }
+.route-clear-btn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+.route-clear-btn:hover { background: #bee3f8; color: #2d3748; }
+.route-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #bee3f8;
+}
+.route-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #2b6cb0;
+  font-weight: 500;
+}
+.route-loading { color: #a0aec0; font-style: italic; }
+
+/* ── Map pin selection badges ────────────── */
+.map-pin__sel {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid white;
+}
+.map-pin__sel--a { background: #48bb78; color: white; }
+.map-pin__sel--b { background: #ed8936; color: white; }
+.pin-sel-a { box-shadow: 0 0 0 3px rgba(72,187,120,.5), 0 3px 10px rgba(0,0,0,.3) !important; }
+.pin-sel-b { box-shadow: 0 0 0 3px rgba(237,137,54,.5), 0 3px 10px rgba(0,0,0,.3) !important; }
 
 .tl-left {
   display: flex;
