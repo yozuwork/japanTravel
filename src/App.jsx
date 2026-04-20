@@ -1,20 +1,34 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Header from './components/Header'
 import MapView from './components/MapView'
 import ItineraryPanel from './components/ItineraryPanel'
 import { ITINERARY } from './data/itinerary'
 
 const BASE = import.meta.env.BASE_URL
+const SNAP_DEFAULT = 22
+const SNAP_EXPANDED = 45
 
 export default function App() {
   const [currentDay, setCurrentDay] = useState(0)
   const [activeIndex, setActiveIndex] = useState(null)
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   const [imageMap, setImageMap] = useState({})
-  const [selA, setSelA] = useState(null) // { id, name, coords, index }
+  const [selA, setSelA] = useState(null)
   const [selB, setSelB] = useState(null)
+  const [mapHeightVh, setMapHeightVh] = useState(SNAP_DEFAULT)
+  const [isResizing, setIsResizing] = useState(false)
+  const prevHasSel = useRef(false)
 
   const day = ITINERARY[currentDay]
+  const hasSel = activeIndex !== null || !!selA || !!selB
+
+  // 選了地標或 A/B 時，若地圖還很小則自動展開
+  useEffect(() => {
+    if (hasSel && !prevHasSel.current) {
+      setMapHeightVh(prev => prev < 35 ? SNAP_EXPANDED : prev)
+    }
+    prevHasSel.current = hasSel
+  }, [hasSel])
 
   useEffect(() => {
     fetch(`${BASE}images/manifest.json?t=${Date.now()}`)
@@ -37,18 +51,15 @@ export default function App() {
     const item = { id: loc.id, name: loc.name, coords: loc.coords, index }
 
     if (selA?.id === loc.id) {
-      // Deselect A → promote B to A
       setSelA(selB)
       setSelB(null)
     } else if (selB?.id === loc.id) {
-      // Deselect B
       setSelB(null)
     } else if (!selA) {
       setSelA(item)
     } else if (!selB) {
       setSelB(item)
     } else {
-      // Both full → restart with this item as A
       setSelA(item)
       setSelB(null)
     }
@@ -79,13 +90,14 @@ export default function App() {
     <>
       <Header currentDay={currentDay} onDayChange={handleDayChange} />
 
-      <main className="app-main">
+      <main className={`app-main${isResizing ? ' resizing' : ''}`}>
         <MapView
           day={day}
           activeIndex={activeIndex}
           onLocationSelect={handleLocationSelect}
           selA={selA}
           selB={selB}
+          mapHeightVh={mapHeightVh}
         />
         <ItineraryPanel
           day={day}
@@ -99,6 +111,10 @@ export default function App() {
           selB={selB}
           onToggleSelection={handleToggleSelection}
           onClearSelection={clearSelection}
+          mapHeightVh={mapHeightVh}
+          onMapHeightChange={setMapHeightVh}
+          onResizeStart={() => setIsResizing(true)}
+          onResizeEnd={() => setIsResizing(false)}
         />
       </main>
 

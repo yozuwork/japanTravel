@@ -526,6 +526,139 @@ html, body, #root {
 .dot-shopping   { background: var(--shopping);   color: #fff; }
 .dot-flight     { background: var(--flight);     color: #fff; }
 
+/* drag handle hidden on desktop */
+.panel-drag-handle { display: none; }
+
+/* ── Edit mode ───────────────────────────── */
+.tl-card { position: relative; }
+
+.tl-card--editing {
+  border-color: #90cdf4;
+  background: #ebf8ff;
+  box-shadow: 0 0 0 2px rgba(66,153,225,.25), 0 1px 3px rgba(0,0,0,.06);
+}
+
+.tl-edit-btn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity .15s, background .15s;
+  padding: 0;
+}
+.tl-card:hover .tl-edit-btn { opacity: 1; }
+.tl-edit-btn:hover { background: #f0f0f0; color: var(--text); }
+
+.edit-input {
+  width: 100%;
+  border: 1px solid #bee3f8;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  margin-bottom: 6px;
+  display: block;
+}
+.edit-input:focus { border-color: #63b3ed; box-shadow: 0 0 0 2px rgba(99,179,237,.2); }
+.edit-input--time { color: var(--primary); font-weight: 700; }
+.edit-input--name { font-size: 14px; font-weight: 600; }
+
+.edit-textarea {
+  width: 100%;
+  border: 1px solid #bee3f8;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-muted);
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  line-height: 1.55;
+  margin-bottom: 8px;
+  display: block;
+}
+.edit-textarea:focus { border-color: #63b3ed; box-shadow: 0 0 0 2px rgba(99,179,237,.2); }
+
+.edit-actions {
+  display: flex;
+  gap: 6px;
+}
+.edit-save-btn, .edit-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.edit-save-btn {
+  background: var(--primary);
+  color: #fff;
+}
+.edit-save-btn:hover { background: var(--primary-dark); }
+.edit-cancel-btn {
+  background: #e2e8f0;
+  color: var(--text);
+}
+.edit-cancel-btn:hover { background: #cbd5e0; }
+
+/* ── Lightbox ────────────────────────────── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lb-in .18s ease;
+}
+@keyframes lb-in { from { opacity: 0 } to { opacity: 1 } }
+
+.lightbox-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.28); }
+
 /* ── Offline toast ───────────────────────── */
 .offline-toast {
   position: fixed;
@@ -547,19 +680,73 @@ html, body, #root {
 @media (max-width: 768px) {
   :root { --header-h: 80px; }
 
-  .app-main { flex-direction: column; }
+  .app-main { flex-direction: column; overflow: hidden; }
 
   .map-wrapper {
-    height: 44vh;
+    height: var(--map-h, 22vh);
+    min-height: var(--map-h, 22vh);
+    max-height: var(--map-h, 22vh);
     flex: none;
+    overflow: hidden;
+    transition: height .3s ease, min-height .3s ease, max-height .3s ease;
+  }
+
+  .resizing .map-wrapper {
+    transition: none;
   }
 
   .itinerary-panel {
     width: 100%;
     border-left: none;
-    border-top: 1px solid var(--border);
+    border-top: none;
     flex: 1;
-    min-height: 0;
+    min-height: 44px;
+    overflow: hidden;
+  }
+
+  /* 手機版：編輯按鈕一直顯示 */
+  .tl-edit-btn { opacity: 0.6; }
+
+  /* ── Drag handle ── */
+  .panel-drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px 6px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    cursor: row-resize;
+    touch-action: none;
+    user-select: none;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .drag-pill {
+    width: 38px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+  }
+
+  .drag-expand-btn {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background .15s, color .15s;
+  }
+  .drag-expand-btn:hover {
+    background: var(--border);
+    color: var(--text);
   }
 }
 

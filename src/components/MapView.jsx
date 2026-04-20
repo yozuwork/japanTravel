@@ -57,8 +57,14 @@ function buildRouteSegments(locations) {
   return segments
 }
 
-function MapController({ day, activeIndex, onFitRef }) {
+function MapController({ day, activeIndex, onFitRef, selA, selB }) {
   const map = useMap()
+
+  useEffect(() => {
+    // 確保 Leaflet 拿到正確的容器尺寸後再執行
+    const t = setTimeout(() => map.invalidateSize(), 50)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     const jpCoords = day.locations.filter(l => l.country === 'jp' && l.coords).map(l => l.coords)
@@ -75,6 +81,12 @@ function MapController({ day, activeIndex, onFitRef }) {
     if (loc?.coords) map.flyTo(loc.coords, Math.max(map.getZoom(), 16), { duration: 0.7 })
   }, [activeIndex])
 
+  useEffect(() => {
+    if (selA?.coords && selB?.coords) {
+      map.fitBounds(L.latLngBounds([selA.coords, selB.coords]), { padding: [60, 60], maxZoom: 16, animate: true })
+    }
+  }, [selA?.id, selB?.id])
+
   onFitRef.current = () => {
     const jpCoords = day.locations.filter(l => l.country === 'jp' && l.coords).map(l => l.coords)
     if (jpCoords.length > 0)
@@ -84,12 +96,12 @@ function MapController({ day, activeIndex, onFitRef }) {
   return null
 }
 
-export default function MapView({ day, activeIndex, onLocationSelect, selA, selB }) {
+export default function MapView({ day, activeIndex, onLocationSelect, selA, selB, mapHeightVh }) {
   const fitRef = useRef(() => {})
   const routeSegments = buildRouteSegments(day.locations)
 
   return (
-    <div className="map-wrapper">
+    <div className="map-wrapper" style={{ '--map-h': `${mapHeightVh}vh` }}>
       <MapContainer
         center={day.defaultCenter ?? [35.6762, 139.6503]}
         zoom={day.defaultZoom ?? 12}
@@ -102,7 +114,7 @@ export default function MapView({ day, activeIndex, onLocationSelect, selA, selB
           maxZoom={19}
         />
 
-        <MapController day={day} activeIndex={activeIndex} onFitRef={fitRef} />
+        <MapController day={day} activeIndex={activeIndex} onFitRef={fitRef} selA={selA} selB={selB} />
 
         {routeSegments.map((seg, i) => (
           <Polyline
