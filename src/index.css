@@ -501,7 +501,7 @@ html, body, #root {
   color: var(--text-muted);
   line-height: 1.55;
 }
-.tl-actions { margin-top: 8px; }
+.tl-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .map-btn {
   display: inline-flex;
   align-items: center;
@@ -752,3 +752,626 @@ html, body, #root {
 
 /* Fix leaflet icon paths */
 .leaflet-default-icon-path { display: none; }
+
+/* ── Luggage info button ─────────────────── */
+.luggage-info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #b7791f;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #fbd38d;
+  cursor: pointer;
+  transition: background .15s;
+}
+.luggage-info-btn:hover { background: #fef3c7; }
+
+/* ── Luggage info modal ──────────────────── */
+.lm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: lb-in .18s ease;
+}
+
+.lm-dialog {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.lm-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  border-radius: 16px 16px 0 0;
+}
+.lm-header-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+.lm-header-title { flex: 1; }
+.lm-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.lm-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.lm-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f7fafc;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.lm-close:hover { background: #e2e8f0; }
+
+.lm-body { padding: 14px 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.lm-section {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+}
+.lm-section--warn {
+  background: #fffbeb;
+  border-color: #fbd38d;
+}
+.lm-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.lm-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 7px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.lm-row:last-child { margin-bottom: 0; }
+.lm-label {
+  flex-shrink: 0;
+  width: 60px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-top: 1px;
+}
+.lm-value { flex: 1; color: var(--text); }
+.lm-highlight {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Fee table */
+.lm-table {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.lm-table-head {
+  display: grid;
+  grid-template-columns: 1fr .7fr 1.5fr;
+  background: #edf2f7;
+  padding: 7px 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  gap: 6px;
+}
+.lm-table-row {
+  display: grid;
+  grid-template-columns: 1fr .7fr 1.5fr;
+  padding: 8px 10px;
+  border-top: 1px solid #e2e8f0;
+  gap: 6px;
+  align-items: center;
+  color: var(--text);
+  background: #fff;
+}
+.lm-table-row--accent { background: #fffbeb; }
+.lm-price {
+  font-weight: 700;
+  color: #c05621;
+}
+
+/* Multi-day section */
+.lm-multi-day {
+  background: #ebf8ff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #bee3f8;
+}
+.lm-multi-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2b6cb0;
+  margin-bottom: 8px;
+}
+.lm-multi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.lm-multi-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 4px;
+  border: 1px solid #bee3f8;
+}
+.lm-multi-days { font-size: 11px; color: #4a5568; }
+.lm-multi-price { font-size: 13px; font-weight: 700; color: #c05621; }
+
+/* Warning list */
+.lm-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+}
+.lm-list li {
+  font-size: 12.5px;
+  color: #744210;
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+.lm-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #b7791f;
+  font-weight: 700;
+}
+
+/* ── Transport note in timeline ──────────── */
+.tl-transport {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  color: #2b6cb0;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* ── Transport map button ────────────────── */
+.transport-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: #c0392b;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(192,57,43,.3);
+}
+.transport-map-btn:hover {
+  background: #96281b;
+  transform: translateY(-1px);
+}
+.transport-map-btn:active { transform: translateY(0); }
+
+/* ── Transport map page ──────────────────── */
+.ts-page {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 2000;
+}
+
+.ts-header {
+  height: 52px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+.ts-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.ts-back-btn:hover { background: rgba(255,255,255,.28); }
+
+.ts-header-title {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ts-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Map area */
+.ts-map-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Station card overlay */
+.ts-card-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 800;
+  width: 300px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+}
+
+/* Side panel */
+.ts-side {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ts-side-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.ts-side-count {
+  margin-left: auto;
+  background: var(--bg);
+  color: var(--text-muted);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* Step list */
+.ts-steplist {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.ts-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 0;
+  transition: background .15s;
+}
+.ts-step:hover { background: var(--bg); }
+.ts-step--active { background: #fff5f5; }
+.ts-step--active .ts-step-name { color: var(--primary); }
+
+.ts-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ts-step-info { flex: 1; min-width: 0; }
+.ts-step-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ts-step-role {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.ts-step-line-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ts-step-connector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 0 27px;
+  margin: 0;
+}
+.ts-step-connector-line {
+  width: 2px;
+  height: 20px;
+  border-radius: 1px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.ts-step-connector-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* ── Station card ────────────────────────── */
+.ts-card {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  overflow: hidden;
+  position: relative;
+  animation: ts-card-in .2s ease;
+}
+@keyframes ts-card-in { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: none } }
+
+.ts-card-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.08);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  z-index: 1;
+}
+.ts-card-close:hover { background: rgba(0,0,0,.15); }
+
+.ts-card-role {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  letter-spacing: .5px;
+}
+
+.ts-card-header { padding: 10px 14px 0; }
+.ts-card-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.ts-card-namesub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ts-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+.ts-rating-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f6ad55;
+}
+.ts-stars { display: flex; gap: 1px; }
+.ts-rating-count { font-size: 11.5px; color: var(--text-muted); }
+.ts-station-type { font-size: 11.5px; color: var(--text-muted); }
+.ts-card-type-only {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.ts-card-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
+
+.ts-card-section { padding: 0 14px; }
+.ts-card-section-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.ts-card-note {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.ts-card-tip {
+  font-size: 11.5px;
+  color: #2b6cb0;
+  margin-top: 4px;
+  padding: 3px 8px;
+  background: #ebf8ff;
+  border-radius: 6px;
+}
+
+.ts-card-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 10px;
+  font-size: 12.5px;
+  color: #2b6cb0;
+  text-decoration: none;
+  transition: color .15s;
+}
+.ts-card-link:hover { color: var(--primary); }
+.ts-card-link--map { padding-top: 0; }
+
+.ts-card-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 14px 12px;
+}
+.ts-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background .15s;
+}
+.ts-nav-btn:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+.ts-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.ts-nav-label { font-size: 13px; font-weight: 600; color: var(--text-muted); min-width: 36px; text-align: center; }
+
+/* Map pin for transport stops */
+.ts-pin {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,.8);
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  transition: transform .2s;
+  cursor: pointer;
+}
+.ts-pin--active {
+  border: 3px solid white;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.4), 0 3px 12px rgba(0,0,0,.4);
+  transform: scale(1.15);
+}
+
+/* ── Transport page mobile ───────────────── */
+@media (max-width: 768px) {
+  .ts-body { flex-direction: column; }
+
+  .ts-map-wrap {
+    flex: 0 0 45vh;
+  }
+
+  .ts-side {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .ts-card-overlay {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 16px 16px 0 0;
+    overflow-y: auto;
+  }
+
+  .ts-card {
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.2);
+  }
+}

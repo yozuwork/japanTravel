@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import Header from './components/Header'
 import MapView from './components/MapView'
 import ItineraryPanel from './components/ItineraryPanel'
+import TransportMapPage from './components/TransportMapPage'
 import { ITINERARY } from './data/itinerary'
+import { TRANSPORT_ROUTES } from './data/transportRoutes'
 
 const BASE = import.meta.env.BASE_URL
 const SNAP_DEFAULT = 22
@@ -17,6 +19,7 @@ export default function App() {
   const [selB, setSelB] = useState(null)
   const [mapHeightVh, setMapHeightVh] = useState(SNAP_DEFAULT)
   const [isResizing, setIsResizing] = useState(false)
+  const [transportDayId, setTransportDayId] = useState(null)
   const prevHasSel = useRef(false)
 
   const day = ITINERARY[currentDay]
@@ -86,6 +89,15 @@ export default function App() {
     return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
 
+  if (transportDayId !== null && TRANSPORT_ROUTES[transportDayId]) {
+    return (
+      <TransportMapPage
+        route={TRANSPORT_ROUTES[transportDayId]}
+        onBack={() => setTransportDayId(null)}
+      />
+    )
+  }
+
   return (
     <>
       <Header currentDay={currentDay} onDayChange={handleDayChange} />
@@ -115,6 +127,7 @@ export default function App() {
           onMapHeightChange={setMapHeightVh}
           onResizeStart={() => setIsResizing(true)}
           onResizeEnd={() => setIsResizing(false)}
+          onOpenTransport={id => setTransportDayId(id)}
         />
       </main>
 

@@ -4,10 +4,11 @@ import { FaMapMarkerAlt, FaCamera, FaTrash } from 'react-icons/fa'
 import {
   MdAddPhotoAlternate, MdRadioButtonUnchecked,
   MdKeyboardArrowUp, MdKeyboardArrowDown,
-  MdEdit, MdCheck, MdClose, MdZoomIn,
+  MdEdit, MdCheck, MdClose, MdZoomIn, MdDirectionsTransit, MdInfoOutline,
 } from 'react-icons/md'
 import { TYPE_ICONS, DAY_ICONS } from '../data/icons'
 import RouteInfoCard from './RouteInfoCard'
+import LuggageInfoModal from './LuggageInfoModal'
 
 /* ── Bottom-sheet drag handle ────────────── */
 const BASE_SNAPS = [10, 22, 45, 75]
@@ -202,6 +203,7 @@ function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, 
   })
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(null)
+  const [showLuggage, setShowLuggage] = useState(false)
 
   // 顯示時優先用編輯後的資料，否則用原始資料
   const display = editData ? { ...loc, ...editData } : loc
@@ -285,14 +287,25 @@ function TimelineItem({ loc, index, isActive, onSelect, imageUrl, onImageSaved, 
             <div className="tl-time">{display.time}</div>
             <div className="tl-name">{display.name}</div>
             {display.note && <div className="tl-note">{display.note}</div>}
-            {loc.mapLink && (
-              <div className="tl-actions">
+            {loc.transport && <div className="tl-transport">{loc.transport}</div>}
+            <div className="tl-actions">
+              {loc.hasLuggageInfo && (
+                <button
+                  className="luggage-info-btn"
+                  onClick={e => { e.stopPropagation(); setShowLuggage(true) }}
+                >
+                  <MdInfoOutline size={13} />
+                  寄物詳情・費用
+                </button>
+              )}
+              {loc.mapLink && (
                 <a href={loc.mapLink} target="_blank" rel="noreferrer"
                   className="map-btn" onClick={e => e.stopPropagation()}>
                   <FaMapMarkerAlt size={11} /> Google 地圖
                 </a>
-              </div>
-            )}
+              )}
+            </div>
+            {showLuggage && <LuggageInfoModal onClose={() => setShowLuggage(false)} />}
           </div>
         )}
 
@@ -321,6 +334,7 @@ export default function ItineraryPanel({
   imageMap, onImageSaved, onImageDeleted,
   selA, selB, onToggleSelection, onClearSelection,
   mapHeightVh, onMapHeightChange, onResizeStart, onResizeEnd,
+  onOpenTransport,
 }) {
   const DayIcon = DAY_ICONS[dayIndex]
 
@@ -346,6 +360,15 @@ export default function ItineraryPanel({
         <div className="panel-day-sub">
           {day.placeholder ? '行程即將加入' : `共 ${day.locations.length} 個地點`}
         </div>
+        {onOpenTransport && (
+          <button
+            className="transport-map-btn"
+            onClick={() => onOpenTransport(day.id)}
+          >
+            <MdDirectionsTransit size={14} />
+            <span>查看交通路線地圖</span>
+          </button>
+        )}
       </div>
 
       <RouteInfoCard selA={selA} selB={selB} onClear={onClearSelection} />
