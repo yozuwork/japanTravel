@@ -3,6 +3,7 @@ import Header from './components/Header'
 import MapView from './components/MapView'
 import ItineraryPanel from './components/ItineraryPanel'
 import TransportMapPage from './components/TransportMapPage'
+import MuseumPage from './components/MuseumPage'
 import { ITINERARY } from './data/itinerary'
 import { TRANSPORT_ROUTES } from './data/transportRoutes'
 
@@ -20,6 +21,7 @@ export default function App() {
   const [mapHeightVh, setMapHeightVh] = useState(SNAP_DEFAULT)
   const [isResizing, setIsResizing] = useState(false)
   const [transportDayId, setTransportDayId] = useState(null)
+  const [showMuseum, setShowMuseum] = useState(false)
   const prevHasSel = useRef(false)
 
   const day = ITINERARY[currentDay]
@@ -98,9 +100,20 @@ export default function App() {
     )
   }
 
+  if (showMuseum) {
+    return (
+      <MuseumPage
+        onBack={() => setShowMuseum(false)}
+        imageMap={imageMap}
+        onImageSaved={handleImageSaved}
+        onImageDeleted={handleImageDeleted}
+      />
+    )
+  }
+
   return (
     <>
-      <Header currentDay={currentDay} onDayChange={handleDayChange} />
+      <Header currentDay={currentDay} onDayChange={handleDayChange} onOpenMuseum={() => setShowMuseum(true)} />
 
       <main className={`app-main${isResizing ? ' resizing' : ''}`}>
         <MapView
