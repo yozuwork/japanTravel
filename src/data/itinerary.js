@@ -75,7 +75,7 @@ export const ITINERARY = [
         id: 'to-kamata',
         name: '前往蒲田 (Kamata)',
         time: '21:00 - 22:15',
-        note: '搭乘成田特快或京濱東北線，預計約75-90分鐘車程',
+        note: 'アクセス特急（刷Suica）→ 品川 → 京濱東北線（刷Suica）→ 蒲田。全程無需加購任何票，預計約75-90分鐘',
         coords: [35.5632, 139.7162],
         type: 'transit',
         country: 'jp',
